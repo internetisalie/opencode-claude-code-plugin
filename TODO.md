@@ -78,6 +78,15 @@ them ran in this directory.
 Questions the maintainer still owes an answer on. Written here the turn they are
 raised, so they survive context compaction; removed when answered, done or dropped.
 
+- 2026-10-04: **idea, from reviewing `10097.patch`**: resume the Claude session after an opencode restart
+  instead of replaying the conversation. Today the session-id map lives in memory, so the first turn of
+  an existing conversation in a fresh opencode process sends the whole history as text: the retained
+  `plugin.log` holds 3 such replays, averaging 648,653 characters and up to 981,109 (an account switch
+  is one of them, and that one can never resume). The patch had `saveClaudeSessionId` /
+  `loadClaudeSessionId` for this, but they were never called. Doing it safely means persisting the
+  session id together with `src/session-fork.ts`'s digest chain and the `cliPath`, and resuming only
+  when this history still extends that chain (opencode revert and edits change it) on the same account.
+  Not started; build it, or leave it?
 - 2026-10-03: opencode processes run the plugin build they started with. 23:26-23:28, after
   0.37.1: 17 idle Herdr panes restarted onto their own sessions by `/tmp/oc-restart/
   restart-opencode-panes.py` (quit with `ctrl+x q`, relaunch `opencode -s <id>` in the same pane;
@@ -119,6 +128,12 @@ Nothing parked.
 
 ## Done
 
+- 2026-10-04: **done**: reviewed `10097.patch` (maintainer: "check it out the patch whether its
+  beneficial still and can be assimilated"). It is anomalyco/opencode#10097 by Dennis Krämer, the opencode
+  proof of concept the first version was built from. Nothing to assimilate: every live piece is
+  superseded here, its core edits do not apply to a plugin, and its session-id persistence was never
+  called. Moved to `docs/history/opencode-pr-10097.patch`; Dennis credited on the Credits page and the
+  landing page. The persistence idea is the open item above.
 - 2026-10-04: **done** (no release): the 65 `test-*.ts` files and `test-fixtures/` moved out of the
   repository root into `test/<name>.test.ts` and `test/fixtures/`, plus the two manual scripts as
   `test/integration.ts` and `test/e2e-claude-session-bun.ts`, so the README is no longer below the
